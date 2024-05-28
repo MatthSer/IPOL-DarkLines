@@ -164,7 +164,8 @@ def log_nfa_dark_lines(img, sigma, rho, x1, y1, x2, y2):
     return log_nfa
 
 
-#@njit(parallel=True)
+# @njit(parallel=True)
+@njit
 def test_points(blurred_img, sigma, rho, list_local_min):
     list_line = []
     for i in nb.prange(len(list_local_min)):
