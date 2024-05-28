@@ -8,7 +8,7 @@ import os
 import argparse
 
 import cv2
-# from numba import njit
+from numba import njit
 import numba as nb
 
 # import vpv
