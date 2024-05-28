@@ -156,7 +156,7 @@ def log_nfa_dark_lines(img, sigma, rho, x1, y1, x2, y2):
     return log_nfa
 
 
-def main(input, rho):
+def main(input, sigma, rho):
     # Read input image and convert to grey scale
     img = iio.read(input)
     if len(img) == 3:
@@ -165,7 +165,7 @@ def main(input, rho):
         grey_scale = img
 
     # Apply gaussian blur
-    sigma = 4.5
+    # sigma = 4.5
     blurred_img = scipy.ndimage.gaussian_filter(grey_scale, sigma=sigma)
 
     # Compute the local minimum of the image
