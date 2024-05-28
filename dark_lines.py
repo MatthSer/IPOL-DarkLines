@@ -63,7 +63,7 @@ def find_local_minimum(img):
     return local_minimum, list_local_min
 
 
-# @njit
+@njit
 def interpolate(img, x, y):
     xx = floor(x)
     yy = floor(y)
@@ -81,7 +81,7 @@ def interpolate(img, x, y):
             + a11 * cx * cy)
 
 
-# @njit
+@njit
 def log_nfa_dark_lines(img, sigma, rho, x1, y1, x2, y2):
     X = img.shape[0]
     Y = img.shape[1]
@@ -164,7 +164,7 @@ def log_nfa_dark_lines(img, sigma, rho, x1, y1, x2, y2):
     return log_nfa
 
 
-# @njit(parallel=True)
+@njit(parallel=True)
 def test_points(blurred_img, sigma, rho, list_local_min):
     list_line = []
     for i in nb.prange(len(list_local_min)):
