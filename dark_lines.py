@@ -3,8 +3,11 @@ import iio
 import numpy as np
 import scipy
 from math import floor
+import os
 
 import argparse
+
+
 # import vpv
 
 
@@ -181,14 +184,21 @@ def main(input, sigma, rho):
                     with open('test_lines.txt', 'a') as file:
                         file.write(f'{y1} {x1} {y2} {x2}\n')
 
-    return 0
+    # Write outputs
+    if not os.path.exists('./output'):
+        os.mkdir('./output')
+    iio.write('./output/local_minimum.png', (local_minimum*255).astype(np.uint8))
+
+
+
+    return exit(0)
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-i', '--input', type=str, default='./inputs/test.png')
-    parser.add_argument('-s', '--sigma', type=float, required=True)
-    parser.add_argument('-r', '--rho', type=float, required=False, default=1/3)
+    parser.add_argument('-s', '--sigma', type=float, required=False, default=4.5)
+    parser.add_argument('-r', '--rho', type=float, required=False, default=1 / 3)
     args = parser.parse_args()
     main(args.input, args.sigma, args.rho)
 
