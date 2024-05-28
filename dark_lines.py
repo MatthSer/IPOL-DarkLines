@@ -186,11 +186,12 @@ def main(input, rho):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('-i', '--input', type=str)
-    parser.add_argument('-r', '--rho', type=float)
-    agrs = parser.parse_args()
-    # main(agrs.input, agrs.rho)
+    parser.add_argument('-i', '--input', type=str, default='./inputs/test.png')
+    parser.add_argument('-s', '--sigma', type=float, required=True)
+    parser.add_argument('-r', '--rho', type=float, required=False, default=1/3)
+    args = parser.parse_args()
+    main(args.input, args.sigma, args.rho)
 
-    img_path = './inputs/test.png'
-    rho = 1 / 3
-    main(img_path, rho)
+    # img_path = './inputs/test.png'
+    # rho = 1 / 3
+    # main(img_path, rho)
