@@ -5,7 +5,7 @@ import scipy
 from math import floor
 
 import argparse
-import vpv
+# import vpv
 
 
 def convert_to_grey(img):
