@@ -7,7 +7,7 @@ import os
 
 import argparse
 
-
+import cv2
 # import vpv
 
 
@@ -174,6 +174,15 @@ def main(input, sigma, rho):
     # Compute the local minimum of the image
     local_minimum, list_local_min = find_local_minimum(blurred_img)
 
+    # Overwrite output file
+    if not os.path.exists('./output'):
+        os.mkdir('./output')
+    if os.path.exists('./output/lines.txt'):
+        os.remove('./output/lines.txt')
+
+    # Create output image with detected lines
+    output = np.copy(img)
+
     # Compute log NFA
     # TODO: BCP TROP LONG PAR RAPPORT À RAFA
     for x1, y1 in list_local_min:
@@ -181,15 +190,13 @@ def main(input, sigma, rho):
             if x1 != x2 or y1 != y2:
                 log_nfa = log_nfa_dark_lines(blurred_img, sigma, rho, x1, y1, x2, y2)
                 if log_nfa < 0.0:
-                    with open('test_lines.txt', 'a') as file:
+                    cv2.line(output, (y1, x1), (y2, x2), (255, 0, 0), 2)
+                    with open('./output/lines.txt', 'a') as file:
                         file.write(f'{y1} {x1} {y2} {x2}\n')
 
     # Write outputs
-    if not os.path.exists('./output'):
-        os.mkdir('./output')
     iio.write('./output/local_minimum.png', (local_minimum*255).astype(np.uint8))
-
-
+    iio.write('./output/output.png', output.astype(np.uint8))
 
     return exit(0)
 
