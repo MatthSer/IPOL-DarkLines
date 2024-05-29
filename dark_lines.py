@@ -1,9 +1,9 @@
-import numpy
 import iio
 import numpy as np
 import scipy
 from math import floor
 import os
+import time
 
 import argparse
 
@@ -162,7 +162,6 @@ def log_nfa_dark_lines(img, sigma, rho, x1, y1, x2, y2):
     return log_nfa
 
 
-
 @njit
 def test_points(blurred_img, sigma, rho, list_local_min):
     list_line = []
@@ -177,6 +176,7 @@ def test_points(blurred_img, sigma, rho, list_local_min):
 
 
 def main(input, sigma, rho):
+
     # Read input image and convert to grey scale
     img = iio.read(input)
     if img.shape[2] == 3:
@@ -185,10 +185,12 @@ def main(input, sigma, rho):
         grey_scale = img
 
     # Apply gaussian blur
+    start_local_minimum = time.time()
     blurred_img = scipy.ndimage.gaussian_filter(grey_scale, sigma=sigma)
 
     # Compute the local minimum of the image
     local_minimum, list_local_min = find_local_minimum(blurred_img)
+    time_local_minimum = time.time() - start_local_minimum
 
     # Overwrite output file
     if not os.path.exists('./output'):
@@ -200,11 +202,17 @@ def main(input, sigma, rho):
     output = np.copy(img)
 
     # Compute log NFA
+    start = time.time()
     with open('./output/lines.txt', 'a') as file:
         list_lines = test_points(blurred_img, sigma, rho, list_local_min)
         for x1, y1, x2, y2 in list_lines:
             cv2.line(output, (y1, x1), (y2, x2), (255, 0, 0), 2)
             file.write(f'{y1} {x1} {y2} {x2}\n')
+    compute_time = time.time() - start
+
+    # Print computation times
+    print(f'Computation time for local minima: {time_local_minimum:.2f} s')
+    print(f'Computation time for searching lines: {compute_time:.2f} s')
 
     # Write outputs
     iio.write('./output/local_minimum.png', (local_minimum * 255).astype(np.uint8))
@@ -217,6 +225,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-i', '--input', type=str, default='./inputs/ao_0.tif')
     parser.add_argument('-s', '--sigma', type=float, required=False, default=4.5)
+    parser.add_argument('-n', '--noise_level', type=int, required=False, default=0)
     parser.add_argument('-r', '--rho', type=float, required=False, default=1 / 3)
     args = parser.parse_args()
     main(args.input, args.sigma, args.rho)
