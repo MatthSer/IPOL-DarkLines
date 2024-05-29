@@ -200,6 +200,7 @@ def main(input, sigma, rho):
 
     # Create output image with detected lines
     output = np.copy(img)
+    lines = np.zeros_like(grey_scale)
 
     # Compute log NFA
     start = time.time()
@@ -207,6 +208,7 @@ def main(input, sigma, rho):
         list_lines = test_points(blurred_img, sigma, rho, list_local_min)
         for x1, y1, x2, y2 in list_lines:
             cv2.line(output, (y1, x1), (y2, x2), (255, 0, 0), 2)
+            cv2.line(lines, (y1, x1), (y2, x2), (255, 255, 255), 2)
             file.write(f'{y1} {x1} {y2} {x2}\n')
     compute_time = time.time() - start
 
@@ -221,6 +223,8 @@ def main(input, sigma, rho):
     # Write outputs
     iio.write('./output/local_minimum.png', (local_minimum * 255).astype(np.uint8))
     iio.write('./output/output.png', output.astype(np.uint8))
+    iio.write('./output/lines.png', lines.astype(np.uint8))
+
 
     return exit(0)
 
