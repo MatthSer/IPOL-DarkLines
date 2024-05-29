@@ -175,13 +175,10 @@ def test_points(blurred_img, sigma, rho, list_local_min):
     return list_line
 
 
-def main(input, sigma, noise_level, rho):
+def main(input, sigma, rho):
 
     # Read input image and convert to grey scale
     img = iio.read(input)
-    if noise_level > 0:
-        noise = np.random.normal(0, noise_level, img.shape)
-        img = img + noise
     if img.shape[2] == 3:
         grey_scale = convert_to_grey(img)
     else:
@@ -232,10 +229,9 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-i', '--input', type=str, default='./inputs/test.png')
     parser.add_argument('-s', '--sigma', type=float, required=False, default=4.5)
-    parser.add_argument('-n', '--noise_level', type=int, required=False, default=0)
     parser.add_argument('-r', '--rho', type=float, required=False, default=1 / 3)
     args = parser.parse_args()
-    main(args.input, args.sigma, args.noise_level, args.rho)
+    main(args.input, args.sigma, args.rho)
 
     # img_path = './inputs/test.png'
     # rho = 1 / 3
