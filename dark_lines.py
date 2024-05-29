@@ -175,10 +175,13 @@ def test_points(blurred_img, sigma, rho, list_local_min):
     return list_line
 
 
-def main(input, sigma, rho):
+def main(input, sigma, rho, noise_level):
 
     # Read input image and convert to grey scale
     img = iio.read(input)
+    if noise_level > 0:
+        noise = np.random.normal(0, noise_level, img.shape)
+        img = img + noise
     if img.shape[2] == 3:
         grey_scale = convert_to_grey(img)
     else:
@@ -210,9 +213,13 @@ def main(input, sigma, rho):
             file.write(f'{y1} {x1} {y2} {x2}\n')
     compute_time = time.time() - start
 
+    # Number of lines found
+    nb_lines = sum(1 for _ in open('./output/lines.txt'))
+
     # Print computation times
     print(f'Computation time for local minima: {time_local_minimum:.2f} s')
     print(f'Computation time for searching lines: {compute_time:.2f} s')
+    print(f'Number of lines found: {nb_lines} lines')
 
     # Write outputs
     iio.write('./output/local_minimum.png', (local_minimum * 255).astype(np.uint8))
@@ -223,12 +230,12 @@ def main(input, sigma, rho):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('-i', '--input', type=str, default='./inputs/ao_0.tif')
+    parser.add_argument('-i', '--input', type=str, default='./inputs/test.png')
     parser.add_argument('-s', '--sigma', type=float, required=False, default=4.5)
     parser.add_argument('-n', '--noise_level', type=int, required=False, default=0)
     parser.add_argument('-r', '--rho', type=float, required=False, default=1 / 3)
     args = parser.parse_args()
-    main(args.input, args.sigma, args.rho)
+    main(args.input, args.sigma, args.rho, args.noise_level)
 
     # img_path = './inputs/test.png'
     # rho = 1 / 3
