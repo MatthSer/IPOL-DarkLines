@@ -11,8 +11,6 @@ import cv2
 from numba import njit
 import numba as nb
 
-# import vpv
-
 
 def convert_to_grey(img):
     grey_value = [1 / 3, 1 / 3, 1 / 3]
@@ -164,7 +162,7 @@ def log_nfa_dark_lines(img, sigma, rho, x1, y1, x2, y2):
     return log_nfa
 
 
-# @njit(parallel=True)
+
 @njit
 def test_points(blurred_img, sigma, rho, list_local_min):
     list_line = []
@@ -187,7 +185,6 @@ def main(input, sigma, rho):
         grey_scale = img
 
     # Apply gaussian blur
-    # sigma = 4.5
     blurred_img = scipy.ndimage.gaussian_filter(grey_scale, sigma=sigma)
 
     # Compute the local minimum of the image
@@ -203,7 +200,6 @@ def main(input, sigma, rho):
     output = np.copy(img)
 
     # Compute log NFA
-    # TODO: BCP TROP LONG PAR RAPPORT À RAFA
     with open('./output/lines.txt', 'a') as file:
         list_lines = test_points(blurred_img, sigma, rho, list_local_min)
         for x1, y1, x2, y2 in list_lines:
@@ -219,7 +215,7 @@ def main(input, sigma, rho):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('-i', '--input', type=str, default='./inputs/test.png')
+    parser.add_argument('-i', '--input', type=str, default='./inputs/ao_0.tif')
     parser.add_argument('-s', '--sigma', type=float, required=False, default=4.5)
     parser.add_argument('-r', '--rho', type=float, required=False, default=1 / 3)
     args = parser.parse_args()

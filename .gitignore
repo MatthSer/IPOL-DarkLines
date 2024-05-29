@@ -6,6 +6,10 @@ __pycache__/
 # C extensions
 *.so
 
+# Project files
+inputs/
+dark_lines_test.py
+
 # DS_Store
 .DS_Store
 
