@@ -11,6 +11,8 @@ import cv2
 from numba import njit
 import numba as nb
 
+from sort_lines import sort_lines
+
 
 def convert_to_grey(img):
     grey_value = [1 / 3, 1 / 3, 1 / 3]
@@ -96,9 +98,16 @@ def log_nfa_dark_lines(img, sigma, rho, x1, y1, x2, y2):
     dy = y2 - y1
     length = np.sqrt(dx * dx + dy * dy)
     if length <= 0.0:
-        return log_nt
+        return log_nt, None, None, None
     dx = dx / length
     dy = dy / length
+
+    # For equation
+    if x1 == x2:
+        a = 1
+    else:
+        a = (dy / dx)
+    b = y1 - (a * x1)
 
     """
     The line is evaluated with the following schema:
@@ -159,7 +168,7 @@ def log_nfa_dark_lines(img, sigma, rho, x1, y1, x2, y2):
 
     log_nfa = log_nt + log_p
 
-    return log_nfa
+    return log_nfa, floor(length), a, floor(b)
 
 
 @njit
@@ -169,14 +178,13 @@ def test_points(blurred_img, sigma, rho, list_local_min):
         x1, y1 = list_local_min[i]
         for x2, y2 in list_local_min:
             if x1 != x2 or y1 != y2:
-                log_nfa = log_nfa_dark_lines(blurred_img, sigma, rho, x1, y1, x2, y2)
+                log_nfa, length, a, b = log_nfa_dark_lines(blurred_img, sigma, rho, x1, y1, x2, y2)
                 if log_nfa < 0.0:
-                    list_line.append((x1, y1, x2, y2))
+                    list_line.append((x1, y1, x2, y2, length, a, b, log_nfa))
     return list_line
 
 
 def main(input, sigma, rho):
-
     # Read input image and convert to grey scale
     img = iio.read(input)
     if img.shape[2] == 3:
@@ -206,25 +214,44 @@ def main(input, sigma, rho):
     start = time.time()
     with open('./output/lines.txt', 'a') as file:
         list_lines = test_points(blurred_img, sigma, rho, list_local_min)
-        for x1, y1, x2, y2 in list_lines:
+        for x1, y1, x2, y2, length, a, b, log_nfa in list_lines:
             cv2.line(output, (y1, x1), (y2, x2), (255, 0, 0), 2)
             cv2.line(lines, (y1, x1), (y2, x2), (255, 255, 255), 2)
-            file.write(f'{y1} {x1} {y2} {x2}\n')
+            file.write(f'{y1} {x1} {y2} {x2} {length} {a:.2f} {b} {log_nfa}\n')
     compute_time = time.time() - start
 
+    # Remove overlapping lines
+    sorted_lines_list = sort_lines('./output/lines.txt')
+    with open('./output/sorted_lines.txt', 'a') as file:
+        for x1, y1, x2, y2, length, a, b, log_nfa in sorted_lines_list:
+            file.write(f'{x1} {y1} {x2} {y2} {length} {a:.2f} {b} {log_nfa}\n')
+
     # Number of lines found
-    nb_lines = sum(1 for _ in open('./output/lines.txt'))
+    nb_lines_before = sum(1 for _ in open('./output/lines.txt'))
+    nb_lines_after = sum(1 for _ in open('./output/sorted_lines.txt'))
+
+    # Draw sorted line on another output image
+    output_sorted = np.copy(img)
+    lines_sorted = np.zeros_like(grey_scale)
+    new_lines = np.loadtxt('./output/sorted_lines.txt')
+    for line in new_lines:
+        y2, x2 = np.uint(line[0]), np.uint(line[1])
+        y1, x1 = np.uint(line[2]), np.uint(line[3])
+        cv2.line(output_sorted, (y1, x1), (y2, x2), (255, 0, 0), 2)
+        cv2.line(lines_sorted, (y1, x1), (y2, x2), (255, 0, 0), 2)
 
     # Print computation times
     print(f'Computation time for local minima: {time_local_minimum:.2f} s')
     print(f'Computation time for searching lines: {compute_time:.2f} s')
-    print(f'Number of lines found: {nb_lines} lines')
+    print(f'Number of lines found before sorting: {nb_lines_before} lines')
+    print(f'Number of lines found after sorting: {nb_lines_after} lines')
 
     # Write outputs
     iio.write('./output/local_minimum.png', (local_minimum * 255).astype(np.uint8))
     iio.write('./output/output.png', output.astype(np.uint8))
     iio.write('./output/lines.png', lines.astype(np.uint8))
-
+    iio.write('./output/output_sorted.png', output_sorted.astype(np.uint8))
+    iio.write('./output/lines_sorted.png', lines_sorted.astype(np.uint8))
 
     return exit(0)
 
