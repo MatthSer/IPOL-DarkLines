@@ -220,38 +220,57 @@ def main(input, sigma, rho):
             file.write(f'{y1} {x1} {y2} {x2} {length} {a:.2f} {b} {log_nfa}\n')
     compute_time = time.time() - start
 
-    # Remove overlapping lines
-    sorted_lines_list = sort_lines('./output/lines.txt')
-    with open('./output/sorted_lines.txt', 'a') as file:
-        for x1, y1, x2, y2, length, a, b, log_nfa in sorted_lines_list:
+    # Remove overlapping lines by length
+    sorted_lines_list_length,  sorted_lines_list_NFA = sort_lines('./output/lines.txt')
+    with open('./output/sorted_lines_length.txt', 'a') as file:
+        for x1, y1, x2, y2, length, a, b, log_nfa in sorted_lines_list_length:
+            file.write(f'{x1} {y1} {x2} {y2} {length} {a:.2f} {b} {log_nfa}\n')
+
+    # Remove overlapping lines by log_NFA
+    with open('./output/sorted_lines_NFA.txt', 'a') as file:
+        for x1, y1, x2, y2, length, a, b, log_nfa in sorted_lines_list_NFA:
             file.write(f'{x1} {y1} {x2} {y2} {length} {a:.2f} {b} {log_nfa}\n')
 
     # Number of lines found
     nb_lines_before = sum(1 for _ in open('./output/lines.txt'))
-    nb_lines_after = sum(1 for _ in open('./output/sorted_lines.txt'))
+    nb_lines_after_length = sum(1 for _ in open('./output/sorted_lines_length.txt'))
+    nb_lines_after_NFA = sum(1 for _ in open('./output/sorted_lines_NFA.txt'))
 
     # Draw sorted line on another output image
-    output_sorted = np.copy(img)
+    output_sorted_length = np.copy(img)
+    output_sorted_NFA = np.copy(img)
     lines_sorted = np.zeros_like(grey_scale)
-    new_lines = np.loadtxt('./output/sorted_lines.txt')
-    for line in new_lines:
+    new_lines_length = np.loadtxt('./output/sorted_lines_length.txt')
+    for line in new_lines_length:
         y2, x2 = np.uint(line[0]), np.uint(line[1])
         y1, x1 = np.uint(line[2]), np.uint(line[3])
-        cv2.line(output_sorted, (y1, x1), (y2, x2), (255, 0, 0), 2)
-        cv2.line(lines_sorted, (y1, x1), (y2, x2), (255, 0, 0), 2)
+        cv2.line(output_sorted_length, (y1, x1), (y2, x2), (255, 0, 0), 2)
+
+    new_lines_NFA = np.loadtxt('./output/sorted_lines_NFA.txt')
+    for line in new_lines_NFA:
+        y2, x2 = np.uint(line[0]), np.uint(line[1])
+        y1, x1 = np.uint(line[2]), np.uint(line[3])
+        cv2.line(output_sorted_NFA, (y1, x1), (y2, x2), (255, 0, 0), 2)
+
+    # Differences between NFA and length
+    diff = np.abs(output_sorted_length - output_sorted_NFA)
 
     # Print computation times
     print(f'Computation time for local minima: {time_local_minimum:.2f} s')
     print(f'Computation time for searching lines: {compute_time:.2f} s')
     print(f'Number of lines found before sorting: {nb_lines_before} lines')
-    print(f'Number of lines found after sorting: {nb_lines_after} lines')
+    print(f'Number of lines found after sorting length: {nb_lines_after_length} lines')
+    print(f'Number of lines found after sorting NFA: {nb_lines_after_NFA} lines')
 
     # Write outputs
     iio.write('./output/local_minimum.png', (local_minimum * 255).astype(np.uint8))
     iio.write('./output/output.png', output.astype(np.uint8))
     iio.write('./output/lines.png', lines.astype(np.uint8))
-    iio.write('./output/output_sorted.png', output_sorted.astype(np.uint8))
-    iio.write('./output/lines_sorted.png', lines_sorted.astype(np.uint8))
+    iio.write('./output/output_sorted_length.png', output_sorted_length.astype(np.uint8))
+    iio.write('./output/output_sorted_NFA.png', output_sorted_NFA.astype(np.uint8))
+    iio.write('./output/lines_sorted_length.png', lines_sorted.astype(np.uint8))
+    iio.write('./output/lines_sorted_NFA.png', lines_sorted.astype(np.uint8))
+    iio.write('./output/difference.png', diff.astype(np.uint8))
 
     return exit(0)
 
@@ -259,7 +278,7 @@ def main(input, sigma, rho):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-i', '--input', type=str, default='./inputs/test.png')
-    parser.add_argument('-s', '--sigma', type=float, required=False, default=4.5)
+    parser.add_argument('-s', '--sigma', type=float, required=False, default=5)
     parser.add_argument('-r', '--rho', type=float, required=False, default=1 / 3)
     args = parser.parse_args()
     main(args.input, args.sigma, args.rho)
