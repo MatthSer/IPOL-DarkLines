@@ -13,8 +13,6 @@ import numba as nb
 
 from sort_lines import sort_lines
 
-import vpv
-
 
 def convert_to_grey(img):
     grey_value = [1 / 3, 1 / 3, 1 / 3]
