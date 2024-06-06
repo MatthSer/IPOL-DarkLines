@@ -13,6 +13,8 @@ import numba as nb
 
 from sort_lines import sort_lines
 
+import vpv
+
 
 def convert_to_grey(img):
     grey_value = [1 / 3, 1 / 3, 1 / 3]
@@ -239,18 +241,21 @@ def main(input, sigma, rho):
     # Draw sorted line on another output image
     output_sorted_length = np.copy(img)
     output_sorted_NFA = np.copy(img)
-    lines_sorted = np.zeros_like(grey_scale)
+    lines_sorted_length = np.zeros_like(grey_scale)
+    lines_sorted_NFA = np.zeros_like(grey_scale)
     new_lines_length = np.loadtxt('./output/sorted_lines_length.txt')
     for line in new_lines_length:
         y2, x2 = np.uint(line[0]), np.uint(line[1])
         y1, x1 = np.uint(line[2]), np.uint(line[3])
         cv2.line(output_sorted_length, (y1, x1), (y2, x2), (255, 0, 0), 2)
+        cv2.line(lines_sorted_length, (y1, x1), (y2, x2), (255, 0, 0), 2)
 
     new_lines_NFA = np.loadtxt('./output/sorted_lines_NFA.txt')
     for line in new_lines_NFA:
         y2, x2 = np.uint(line[0]), np.uint(line[1])
         y1, x1 = np.uint(line[2]), np.uint(line[3])
         cv2.line(output_sorted_NFA, (y1, x1), (y2, x2), (255, 0, 0), 2)
+        cv2.line(lines_sorted_NFA, (y1, x1), (y2, x2), (255, 0, 0), 2)
 
     # Differences between NFA and length
     diff = np.abs(output_sorted_length - output_sorted_NFA)
@@ -268,8 +273,8 @@ def main(input, sigma, rho):
     iio.write('./output/lines.png', lines.astype(np.uint8))
     iio.write('./output/output_sorted_length.png', output_sorted_length.astype(np.uint8))
     iio.write('./output/output_sorted_NFA.png', output_sorted_NFA.astype(np.uint8))
-    iio.write('./output/lines_sorted_length.png', lines_sorted.astype(np.uint8))
-    iio.write('./output/lines_sorted_NFA.png', lines_sorted.astype(np.uint8))
+    iio.write('./output/lines_sorted_length.png', lines_sorted_length.astype(np.uint8))
+    iio.write('./output/lines_sorted_NFA.png', lines_sorted_NFA.astype(np.uint8))
     iio.write('./output/difference.png', diff.astype(np.uint8))
 
     return exit(0)
