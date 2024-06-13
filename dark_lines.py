@@ -15,8 +15,8 @@ from sort_lines import sort_lines
 
 
 def convert_to_grey(img):
-    grey_value = [1 / 3, 1 / 3, 1 / 3]
-    # grey_value = [0.2125, 0.7154, 0.0721 ]
+    # grey_value = [1 / 3, 1 / 3, 1 / 3]
+    grey_value = [0.2125, 0.7154, 0.0721 ]
     grey_scale = np.matmul(img, grey_value)
     return grey_scale
 
@@ -220,62 +220,72 @@ def main(input, sigma, rho):
             file.write(f'{y1} {x1} {y2} {x2} {length} {a:.2f} {b} {log_nfa}\n')
     compute_time = time.time() - start
 
-    # Remove overlapping lines by length
-    sorted_lines_list_length,  sorted_lines_list_NFA = sort_lines('./output/lines.txt')
-    with open('./output/sorted_lines_length.txt', 'a') as file:
-        for x1, y1, x2, y2, length, a, b, log_nfa in sorted_lines_list_length:
-            file.write(f'{x1} {y1} {x2} {y2} {length} {a:.2f} {b} {log_nfa}\n')
-
-    # Remove overlapping lines by log_NFA
-    with open('./output/sorted_lines_NFA.txt', 'a') as file:
-        for x1, y1, x2, y2, length, a, b, log_nfa in sorted_lines_list_NFA:
-            file.write(f'{x1} {y1} {x2} {y2} {length} {a:.2f} {b} {log_nfa}\n')
-
     # Number of lines found
     nb_lines_before = sum(1 for _ in open('./output/lines.txt'))
-    nb_lines_after_length = sum(1 for _ in open('./output/sorted_lines_length.txt'))
-    nb_lines_after_NFA = sum(1 for _ in open('./output/sorted_lines_NFA.txt'))
+    if nb_lines_before != 0:
+        # Remove overlapping lines by length
+        sorted_lines_list_length,  sorted_lines_list_NFA = sort_lines('./output/lines.txt')
+        with open('./output/sorted_lines_length.txt', 'a') as file:
+            for x1, y1, x2, y2, length, a, b, log_nfa in sorted_lines_list_length:
+                file.write(f'{x1} {y1} {x2} {y2} {length} {a:.2f} {b} {log_nfa}\n')
 
-    # Draw sorted line on another output image
-    output_sorted_length = np.copy(img)
-    output_sorted_NFA = np.copy(img)
-    lines_sorted_length = np.zeros_like(grey_scale)
-    lines_sorted_NFA = np.zeros_like(grey_scale)
+        # Remove overlapping lines by log_NFA
+        with open('./output/sorted_lines_NFA.txt', 'a') as file:
+            for x1, y1, x2, y2, length, a, b, log_nfa in sorted_lines_list_NFA:
+                file.write(f'{x1} {y1} {x2} {y2} {length} {a:.2f} {b} {log_nfa}\n')
 
-    # Store the line in an output file
-    new_lines_length = np.loadtxt('./output/sorted_lines_length.txt')
-    for line in new_lines_length:
-        y2, x2 = np.uint(line[0]), np.uint(line[1])
-        y1, x1 = np.uint(line[2]), np.uint(line[3])
-        cv2.line(output_sorted_length, (y1, x1), (y2, x2), (255, 0, 0), 2)
-        cv2.line(lines_sorted_length, (y1, x1), (y2, x2), (255, 0, 0), 2)
+        # Number of lines found after sorting
+        nb_lines_after_length = sum(1 for _ in open('./output/sorted_lines_length.txt'))
+        nb_lines_after_NFA = sum(1 for _ in open('./output/sorted_lines_NFA.txt'))
 
-    new_lines_NFA = np.loadtxt('./output/sorted_lines_NFA.txt')
-    for line in new_lines_NFA:
-        y2, x2 = np.uint(line[0]), np.uint(line[1])
-        y1, x1 = np.uint(line[2]), np.uint(line[3])
-        cv2.line(output_sorted_NFA, (y1, x1), (y2, x2), (255, 0, 0), 2)
-        cv2.line(lines_sorted_NFA, (y1, x1), (y2, x2), (255, 0, 0), 2)
+        # Draw sorted line on another output image
+        output_sorted_length = np.copy(img)
+        output_sorted_NFA = np.copy(img)
+        lines_sorted_length = np.zeros_like(grey_scale)
+        lines_sorted_NFA = np.zeros_like(grey_scale)
 
-    # Differences between NFA and length
-    diff = np.abs(output_sorted_length - output_sorted_NFA)
+        # Store the line in an output file
+        new_lines_length = np.loadtxt('./output/sorted_lines_length.txt')
+        for line in new_lines_length:
+            y2, x2 = np.uint(line[0]), np.uint(line[1])
+            y1, x1 = np.uint(line[2]), np.uint(line[3])
+            cv2.line(output_sorted_length, (y1, x1), (y2, x2), (255, 0, 0), 2)
+            cv2.line(lines_sorted_length, (y1, x1), (y2, x2), (255, 0, 0), 2)
 
-    # Print computation times
-    print(f'Computation time for local minima: {time_local_minimum:.2f} s')
-    print(f'Computation time for searching lines: {compute_time:.2f} s')
-    print(f'Number of lines found before sorting: {nb_lines_before} lines')
-    print(f'Number of lines found after sorting length: {nb_lines_after_length} lines')
-    print(f'Number of lines found after sorting NFA: {nb_lines_after_NFA} lines')
+        new_lines_NFA = np.loadtxt('./output/sorted_lines_NFA.txt')
+        for line in new_lines_NFA:
+            y2, x2 = np.uint(line[0]), np.uint(line[1])
+            y1, x1 = np.uint(line[2]), np.uint(line[3])
+            cv2.line(output_sorted_NFA, (y1, x1), (y2, x2), (255, 0, 0), 2)
+            cv2.line(lines_sorted_NFA, (y1, x1), (y2, x2), (255, 0, 0), 2)
 
-    # Write outputs
-    iio.write('./output/local_minimum.png', (local_minimum * 255).astype(np.uint8))
-    iio.write('./output/output.png', output.astype(np.uint8))
-    iio.write('./output/lines.png', lines.astype(np.uint8))
-    iio.write('./output/output_sorted_length.png', output_sorted_length.astype(np.uint8))
-    iio.write('./output/output_sorted_NFA.png', output_sorted_NFA.astype(np.uint8))
-    iio.write('./output/lines_sorted_length.png', lines_sorted_length.astype(np.uint8))
-    iio.write('./output/lines_sorted_NFA.png', lines_sorted_NFA.astype(np.uint8))
-    iio.write('./output/difference.png', diff.astype(np.uint8))
+        # Differences between NFA and length
+        diff = np.abs(output_sorted_length - output_sorted_NFA)
+
+        # Print computation times
+        print(f'Computation time for local minima: {time_local_minimum:.2f} s')
+        print(f'Computation time for searching lines: {compute_time:.2f} s')
+        print(f'Number of lines found before sorting: {nb_lines_before} lines')
+        print(f'Number of lines found after sorting length: {nb_lines_after_length} lines')
+        print(f'Number of lines found after sorting NFA: {nb_lines_after_NFA} lines')
+
+        # Write outputs
+        iio.write('./output/local_minimum.png', (local_minimum * 255).astype(np.uint8))
+        iio.write('./output/output.png', output.astype(np.uint8))
+        iio.write('./output/lines.png', lines.astype(np.uint8))
+        iio.write('./output/output_sorted_length.png', output_sorted_length.astype(np.uint8))
+        iio.write('./output/output_sorted_NFA.png', output_sorted_NFA.astype(np.uint8))
+        iio.write('./output/lines_sorted_length.png', lines_sorted_length.astype(np.uint8))
+        iio.write('./output/lines_sorted_NFA.png', lines_sorted_NFA.astype(np.uint8))
+        iio.write('./output/difference.png', diff.astype(np.uint8))
+
+    else:
+        print(f'Computation time for local minima: {time_local_minimum:.2f} s')
+        print(f'Computation time for searching lines: {compute_time:.2f} s')
+        print(f'Number of lines found before sorting: {nb_lines_before} lines')
+
+        # Write outputs
+        iio.write('./output/local_minimum.png', (local_minimum * 255).astype(np.uint8))
 
     return exit(0)
 
