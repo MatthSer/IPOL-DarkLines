@@ -5,11 +5,19 @@ import numpy as np
 
 def sort_lines(input):
     lines = np.loadtxt(input)
+    nb_lines = sum(1 for _ in open(input))
 
     if os.path.exists('./output/sorted_lines_NFA.txt'):
         os.remove('./output/sorted_lines_NFA.txt')
     if os.path.exists('./output/sorted_lines_length.txt'):
         os.remove('./output/sorted_lines_length.txt')
+
+    if nb_lines == 1:
+        sorted_lines_list_length = []
+        sorted_lines_list_NFA = []
+        sorted_lines_list_length.append(lines)
+        sorted_lines_list_NFA.append(lines)
+        return sorted_lines_list_length, sorted_lines_list_NFA
 
     # First sort the line by length
     # length_sorted_lines = lines[lines[:, 4].argsort()]

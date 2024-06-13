@@ -222,6 +222,7 @@ def main(input, sigma, rho):
 
     # Number of lines found
     nb_lines_before = sum(1 for _ in open('./output/lines.txt'))
+
     if nb_lines_before != 0:
         # Remove overlapping lines by length
         sorted_lines_list_length,  sorted_lines_list_NFA = sort_lines('./output/lines.txt')
@@ -245,19 +246,33 @@ def main(input, sigma, rho):
         lines_sorted_NFA = np.zeros_like(grey_scale)
 
         # Store the line in an output file
-        new_lines_length = np.loadtxt('./output/sorted_lines_length.txt')
-        for line in new_lines_length:
-            y2, x2 = np.uint(line[0]), np.uint(line[1])
-            y1, x1 = np.uint(line[2]), np.uint(line[3])
+        if nb_lines_after_length == 1:
+            lines_coordinates = np.loadtxt('./output/sorted_lines_length.txt')
+            y2, x2 = np.uint(lines_coordinates[0]), np.uint(lines_coordinates[1])
+            y1, x1 = np.uint(lines_coordinates[2]), np.uint(lines_coordinates[3])
             cv2.line(output_sorted_length, (y1, x1), (y2, x2), (255, 0, 0), 2)
             cv2.line(lines_sorted_length, (y1, x1), (y2, x2), (255, 0, 0), 2)
+        else:
+            new_lines_length = np.loadtxt('./output/sorted_lines_length.txt')
+            for line in new_lines_length:
+                y2, x2 = np.uint(line[0]), np.uint(line[1])
+                y1, x1 = np.uint(line[2]), np.uint(line[3])
+                cv2.line(output_sorted_length, (y1, x1), (y2, x2), (255, 0, 0), 2)
+                cv2.line(lines_sorted_length, (y1, x1), (y2, x2), (255, 0, 0), 2)
 
-        new_lines_NFA = np.loadtxt('./output/sorted_lines_NFA.txt')
-        for line in new_lines_NFA:
-            y2, x2 = np.uint(line[0]), np.uint(line[1])
-            y1, x1 = np.uint(line[2]), np.uint(line[3])
-            cv2.line(output_sorted_NFA, (y1, x1), (y2, x2), (255, 0, 0), 2)
-            cv2.line(lines_sorted_NFA, (y1, x1), (y2, x2), (255, 0, 0), 2)
+        if nb_lines_after_NFA == 1:
+            lines_coordinates = np.loadtxt('./output/sorted_lines_length.txt')
+            y2, x2 = np.uint(lines_coordinates[0]), np.uint(lines_coordinates[1])
+            y1, x1 = np.uint(lines_coordinates[2]), np.uint(lines_coordinates[3])
+            cv2.line(output_sorted_length, (y1, x1), (y2, x2), (255, 0, 0), 2)
+            cv2.line(lines_sorted_length, (y1, x1), (y2, x2), (255, 0, 0), 2)
+        else:
+            new_lines_NFA = np.loadtxt('./output/sorted_lines_NFA.txt')
+            for line in new_lines_NFA:
+                y2, x2 = np.uint(line[0]), np.uint(line[1])
+                y1, x1 = np.uint(line[2]), np.uint(line[3])
+                cv2.line(output_sorted_NFA, (y1, x1), (y2, x2), (255, 0, 0), 2)
+                cv2.line(lines_sorted_NFA, (y1, x1), (y2, x2), (255, 0, 0), 2)
 
         # Differences between NFA and length
         diff = np.abs(output_sorted_length - output_sorted_NFA)
@@ -299,7 +314,7 @@ def main(input, sigma, rho):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('-i', '--input', type=str, default='./inputs/test.png')
+    parser.add_argument('-i', '--input', type=str, default='./inputs/chairs.png')
     parser.add_argument('-s', '--sigma', type=float, required=False, default=5)
     parser.add_argument('-r', '--rho', type=float, required=False, default=1 / 3)
     args = parser.parse_args()
