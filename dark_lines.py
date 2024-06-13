@@ -280,9 +280,9 @@ def main(input, sigma, rho):
         iio.write('./output/difference.png', diff.astype(np.uint8))
 
     else:
+        print('NO LINE FOUND!')
         print(f'Computation time for local minima: {time_local_minimum:.2f} s')
         print(f'Computation time for searching lines: {compute_time:.2f} s')
-        print(f'Number of lines found before sorting: {nb_lines_before} lines')
 
         # Write outputs
         iio.write('./output/local_minimum.png', (local_minimum * 255).astype(np.uint8))
