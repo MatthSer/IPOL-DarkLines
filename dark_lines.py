@@ -286,6 +286,13 @@ def main(input, sigma, rho):
 
         # Write outputs
         iio.write('./output/local_minimum.png', (local_minimum * 255).astype(np.uint8))
+        iio.write('./output/output.png', output.astype(np.uint8))
+        iio.write('./output/lines.png', lines.astype(np.uint8))
+        iio.write('./output/output_sorted_length.png', lines.astype(np.uint8))
+        iio.write('./output/output_sorted_NFA.png', lines.astype(np.uint8))
+        iio.write('./output/lines_sorted_length.png', lines.astype(np.uint8))
+        iio.write('./output/lines_sorted_NFA.png', lines.astype(np.uint8))
+        iio.write('./output/difference.png', lines.astype(np.uint8))
 
     return exit(0)
 
