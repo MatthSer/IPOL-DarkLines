@@ -9,6 +9,7 @@ __pycache__/
 # Project files
 inputs/
 dark_lines_test.py
+create_images.py
 
 # DS_Store
 .DS_Store
