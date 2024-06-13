@@ -264,8 +264,8 @@ def main(input, sigma, rho):
             lines_coordinates = np.loadtxt('./output/sorted_lines_length.txt')
             y2, x2 = np.uint(lines_coordinates[0]), np.uint(lines_coordinates[1])
             y1, x1 = np.uint(lines_coordinates[2]), np.uint(lines_coordinates[3])
-            cv2.line(output_sorted_length, (y1, x1), (y2, x2), (255, 0, 0), 2)
-            cv2.line(lines_sorted_length, (y1, x1), (y2, x2), (255, 0, 0), 2)
+            cv2.line(output_sorted_NFA, (y1, x1), (y2, x2), (255, 0, 0), 2)
+            cv2.line(lines_sorted_NFA, (y1, x1), (y2, x2), (255, 0, 0), 2)
         else:
             new_lines_NFA = np.loadtxt('./output/sorted_lines_NFA.txt')
             for line in new_lines_NFA:
