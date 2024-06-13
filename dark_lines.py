@@ -241,6 +241,8 @@ def main(input, sigma, rho):
     output_sorted_NFA = np.copy(img)
     lines_sorted_length = np.zeros_like(grey_scale)
     lines_sorted_NFA = np.zeros_like(grey_scale)
+
+    # Store the line in an output file
     new_lines_length = np.loadtxt('./output/sorted_lines_length.txt')
     for line in new_lines_length:
         y2, x2 = np.uint(line[0]), np.uint(line[1])
@@ -286,6 +288,3 @@ if __name__ == '__main__':
     args = parser.parse_args()
     main(args.input, args.sigma, args.rho)
 
-    # img_path = './inputs/test.png'
-    # rho = 1 / 3
-    # main(img_path, rho)
