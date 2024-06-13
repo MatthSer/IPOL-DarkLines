@@ -25,7 +25,7 @@ def sort_lines(input):
             b = line[6]
             a_test = line_test[5]
             b_test = line_test[6]
-            if a - 0.2 < a_test < a + 0.2 and b - 100 <= b_test <= b + 100:
+            if a - 0.2 < a_test < a + 0.2 and b - 50 <= b_test <= b + 50:
                 is_double = True
         if not is_double:
             sorted_lines_list_length.append(line_test)
@@ -39,7 +39,7 @@ def sort_lines(input):
             b = line[6]
             a_test = line_test[5]
             b_test = line_test[6]
-            if a - 0.2 < a_test < a + 0.2 and b - 100 <= b_test <= b + 100:
+            if a - 0.2 < a_test < a + 0.2 and b - 50 <= b_test <= b + 50:
                 is_double = True
         if not is_double:
             sorted_lines_list_NFA.append(line_test)
